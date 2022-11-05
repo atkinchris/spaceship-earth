@@ -1,13 +1,12 @@
 import fs from 'fs'
+import STL from './Stl'
 
 import { midpoint, normal, scale, Vect } from './vect'
 
 const PHI = (1.0 + Math.sqrt(5.0)) / 2.0 /* golden ratio */
 const PEAK = 1.025
 
-const printf = (message: string) => {
-  fs.appendFileSync('output.stl', message)
-}
+const stl = new STL()
 
 /* init_dodecahedron: initializes given polygon array with points for a
 	dodecahedron of circumscribed radius 1; assumes given array is of size
@@ -69,36 +68,14 @@ const initDodecahedron = (): Vect[][] => {
   return dodecahedron
 }
 
-/* print_triangle: prints given triangle in STL format to stdout */
-const printTriangle = (t: Vect[]) => {
-  const n = normal(t)
-
-  printf(`facet normal ${n.x} ${n.y} ${n.z}\n`)
-
-  printf('\touter loop\n')
-  printf(`\t\tvertex ${t[0].x} ${t[0].y} ${t[0].z}\n`)
-  printf(`\t\tvertex ${t[1].x} ${t[1].y} ${t[1].z}\n`)
-  printf(`\t\tvertex ${t[2].x} ${t[2].y} ${t[2].z}\n`)
-  printf('\tendloop\n')
-
-  printf('endfacet\n')
-  printf('\n')
-}
-
 /* peak_triangle: converts given triangle into pyramid-like peaks consisting of
 	3 triangles; passes generated triangles to print_triangle() */
 const peakTriangle = (tri: Vect[]) => {
   const n = scale(normal(tri), PEAK)
 
-  const triangles = [
-    [n, tri[0], tri[1]],
-    [n, tri[1], tri[2]],
-    [n, tri[2], tri[0]],
-  ]
-
-  for (let i = 0; i < 3; i += 1) {
-    printTriangle(triangles[i])
-  }
+  stl.addTriangle([n, tri[0], tri[1]])
+  stl.addTriangle([n, tri[1], tri[2]])
+  stl.addTriangle([n, tri[2], tri[0]])
 }
 
 /* subdiv_triangle: subdivides given triangle into 4 triangles, recursively by
@@ -146,19 +123,13 @@ const subdivPentagon = (p: Vect[]) => {
 }
 
 const main = () => {
-  fs.writeFileSync('output.stl', '')
-  printf('solid spaceship_earth\n')
-  printf('\n')
-
   const dodecahedron = initDodecahedron()
 
   for (let i = 0; i < 12; i += 1) {
     subdivPentagon(dodecahedron[i])
   }
 
-  printf('endsolid spaceship_earth\n')
-
-  return 0
+  fs.writeFileSync('output.stl', stl.toString())
 }
 
 main()
