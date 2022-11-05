@@ -19,97 +19,36 @@ const printf = (message: string) => {
 	dodecahedron of circumscribed radius 1; assumes given array is of size
 	[12][5] */
 const initDodecahedron = (): Vect[][] => {
-  const a1 = {} as Vect
-  const a2 = {} as Vect
-  const a3 = {} as Vect
-  const a4 = {} as Vect
-  const a5 = {} as Vect
-  const a6 = {} as Vect
-  const a7 = {} as Vect
-  const a8 = {} as Vect
-  const b1 = {} as Vect
-  const b2 = {} as Vect
-  const b3 = {} as Vect
-  const b4 = {} as Vect
-  const c1 = {} as Vect
-  const c2 = {} as Vect
-  const c3 = {} as Vect
-  const c4 = {} as Vect
-  const d1 = {} as Vect
-  const d2 = {} as Vect
-  const d3 = {} as Vect
-  const d4 = {} as Vect
-
   /* define vertices of regular dodecahedron; radius of circumscribed sphere
       is currently sqrt(3) */
 
   /* "a" vertices; forms a cube */
-  a1.x = 1
-  a1.y = 1
-  a1.z = 1
-  a2.x = 1
-  a2.y = 1
-  a2.z = -1
-  a3.x = 1
-  a3.y = -1
-  a3.z = 1
-  a4.x = 1
-  a4.y = -1
-  a4.z = -1
-  a5.x = -1
-  a5.y = 1
-  a5.z = 1
-  a6.x = -1
-  a6.y = 1
-  a6.z = -1
-  a7.x = -1
-  a7.y = -1
-  a7.z = 1
-  a8.x = -1
-  a8.y = -1
-  a8.z = -1
+  const a1: Vect = { x: 1, y: 1, z: 1 }
+  const a2: Vect = { x: 1, y: 1, z: -1 }
+  const a3: Vect = { x: 1, y: -1, z: 1 }
+  const a4: Vect = { x: 1, y: -1, z: -1 }
+  const a5: Vect = { x: -1, y: 1, z: 1 }
+  const a6: Vect = { x: -1, y: 1, z: -1 }
+  const a7: Vect = { x: -1, y: -1, z: 1 }
+  const a8: Vect = { x: -1, y: -1, z: -1 }
 
   /* "b" vertices; forms a rectangle on the yz-plane */
-  b1.x = 0
-  b1.y = PHI
-  b1.z = 1.0 / PHI
-  b2.x = 0
-  b2.y = PHI
-  b2.z = -1.0 / PHI
-  b3.x = 0
-  b3.y = -PHI
-  b3.z = 1.0 / PHI
-  b4.x = 0
-  b4.y = -PHI
-  b4.z = -1.0 / PHI
+  const b1: Vect = { x: 0, y: PHI, z: 1.0 / PHI }
+  const b2: Vect = { x: 0, y: PHI, z: -1.0 / PHI }
+  const b3: Vect = { x: 0, y: -PHI, z: 1.0 / PHI }
+  const b4: Vect = { x: 0, y: -PHI, z: -1.0 / PHI }
 
   /* "c" vertices; forms a rectangle on the xz-plane */
-  c1.x = 1.0 / PHI
-  c1.y = 0
-  c1.z = PHI
-  c2.x = 1.0 / PHI
-  c2.y = 0
-  c2.z = -PHI
-  c3.x = -1.0 / PHI
-  c3.y = 0
-  c3.z = PHI
-  c4.x = -1.0 / PHI
-  c4.y = 0
-  c4.z = -PHI
+  const c1: Vect = { x: 1.0 / PHI, y: 0, z: PHI }
+  const c2: Vect = { x: 1.0 / PHI, y: 0, z: -PHI }
+  const c3: Vect = { x: -1.0 / PHI, y: 0, z: PHI }
+  const c4: Vect = { x: -1.0 / PHI, y: 0, z: -PHI }
 
   /* "d" vertices; forms a rectangle on the xy-plane */
-  d1.x = PHI
-  d1.y = 1.0 / PHI
-  d1.z = 0
-  d2.x = PHI
-  d2.y = -1.0 / PHI
-  d2.z = 0
-  d3.x = -PHI
-  d3.y = 1.0 / PHI
-  d3.z = 0
-  d4.x = -PHI
-  d4.y = -1.0 / PHI
-  d4.z = 0
+  const d1: Vect = { x: PHI, y: 1.0 / PHI, z: 0 }
+  const d2: Vect = { x: PHI, y: -1.0 / PHI, z: 0 }
+  const d3: Vect = { x: -PHI, y: 1.0 / PHI, z: 0 }
+  const d4: Vect = { x: -PHI, y: -1.0 / PHI, z: 0 }
 
   const dodecahedron = [
     [b1, a1, d1, a2, b2],
