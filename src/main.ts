@@ -1,15 +1,9 @@
 import fs from 'fs'
 
-import { midpoint, normal, scale } from './vect'
+import { midpoint, normal, scale, Vect } from './vect'
 
 const PHI = (1.0 + Math.sqrt(5.0)) / 2.0 /* golden ratio */
 const PEAK = 1.025
-
-interface Vect {
-  x: number
-  y: number
-  z: number
-}
 
 const printf = (message: string) => {
   fs.appendFileSync('output.stl', message)
