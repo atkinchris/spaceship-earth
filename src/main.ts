@@ -1,3 +1,5 @@
+import fs from 'fs'
+
 import { midpoint, normal, scale } from './vect'
 
 const PHI = (1.0 + Math.sqrt(5.0)) / 2.0 /* golden ratio */
@@ -7,6 +9,10 @@ interface Vect {
   x: number
   y: number
   z: number
+}
+
+const printf = (message: string) => {
+  fs.appendFileSync('output.stl', message)
 }
 
 /* init_dodecahedron: initializes given polygon array with points for a
@@ -130,11 +136,43 @@ const initDodecahedron = (): Vect[][] => {
   return dodecahedron
 }
 
+/* print_triangle: prints given triangle in STL format to stdout */
+const printTriangle = (t: Vect[]) => {
+  const n = normal(t)
+
+  printf(`facet normal ${n.x} ${n.y} ${n.z}\n`)
+
+  printf('\touter loop\n')
+  printf(`\t\tvertex ${t[0].x} ${t[0].y} ${t[0].z}\n`)
+  printf(`\t\tvertex ${t[1].x} ${t[1].y} ${t[1].z}\n`)
+  printf(`\t\tvertex ${t[2].x} ${t[2].y} ${t[2].z}\n`)
+  printf('\tendloop\n')
+
+  printf('endfacet\n')
+  printf('\n')
+}
+
+/* peak_triangle: converts given triangle into pyramid-like peaks consisting of
+	3 triangles; passes generated triangles to print_triangle() */
+const peakTriangle = (tri: Vect[]) => {
+  const n = scale(normal(tri), PEAK)
+
+  const triangles = [
+    [n, tri[0], tri[1]],
+    [n, tri[1], tri[2]],
+    [n, tri[2], tri[0]],
+  ]
+
+  for (let i = 0; i < 3; i += 1) {
+    printTriangle(triangles[i])
+  }
+}
+
 /* subdiv_triangle: subdivides given triangle into 4 triangles, recursively by
 	numtimes; passes generated triangles to peak_triangle() */
 const subdivTriangle = (t: Vect[], numtimes: number) => {
   if (numtimes <= 0) {
-    peak_triangle(t)
+    peakTriangle(t)
     return
   }
 
@@ -175,8 +213,9 @@ const subdivPentagon = (p: Vect[]) => {
 }
 
 const main = () => {
-  console.log('solid spaceship_earth\n')
-  console.log('\n')
+  fs.writeFileSync('output.stl', '')
+  printf('solid spaceship_earth\n')
+  printf('\n')
 
   const dodecahedron = initDodecahedron()
 
@@ -184,7 +223,7 @@ const main = () => {
     subdivPentagon(dodecahedron[i])
   }
 
-  console.log('endsolid spaceship_earth\n')
+  printf('endsolid spaceship_earth\n')
 
   return 0
 }
