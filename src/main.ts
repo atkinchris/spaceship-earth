@@ -1,1 +1,192 @@
-console.log('Hello world')
+import { midpoint, normal, scale } from './vect'
+
+const PHI = (1.0 + Math.sqrt(5.0)) / 2.0 /* golden ratio */
+const PEAK = 1.025
+
+interface Vect {
+  x: number
+  y: number
+  z: number
+}
+
+/* init_dodecahedron: initializes given polygon array with points for a
+	dodecahedron of circumscribed radius 1; assumes given array is of size
+	[12][5] */
+const initDodecahedron = (): Vect[][] => {
+  const a1 = {} as Vect
+  const a2 = {} as Vect
+  const a3 = {} as Vect
+  const a4 = {} as Vect
+  const a5 = {} as Vect
+  const a6 = {} as Vect
+  const a7 = {} as Vect
+  const a8 = {} as Vect
+  const b1 = {} as Vect
+  const b2 = {} as Vect
+  const b3 = {} as Vect
+  const b4 = {} as Vect
+  const c1 = {} as Vect
+  const c2 = {} as Vect
+  const c3 = {} as Vect
+  const c4 = {} as Vect
+  const d1 = {} as Vect
+  const d2 = {} as Vect
+  const d3 = {} as Vect
+  const d4 = {} as Vect
+
+  /* define vertices of regular dodecahedron; radius of circumscribed sphere
+      is currently sqrt(3) */
+
+  /* "a" vertices; forms a cube */
+  a1.x = 1
+  a1.y = 1
+  a1.z = 1
+  a2.x = 1
+  a2.y = 1
+  a2.z = -1
+  a3.x = 1
+  a3.y = -1
+  a3.z = 1
+  a4.x = 1
+  a4.y = -1
+  a4.z = -1
+  a5.x = -1
+  a5.y = 1
+  a5.z = 1
+  a6.x = -1
+  a6.y = 1
+  a6.z = -1
+  a7.x = -1
+  a7.y = -1
+  a7.z = 1
+  a8.x = -1
+  a8.y = -1
+  a8.z = -1
+
+  /* "b" vertices; forms a rectangle on the yz-plane */
+  b1.x = 0
+  b1.y = PHI
+  b1.z = 1.0 / PHI
+  b2.x = 0
+  b2.y = PHI
+  b2.z = -1.0 / PHI
+  b3.x = 0
+  b3.y = -PHI
+  b3.z = 1.0 / PHI
+  b4.x = 0
+  b4.y = -PHI
+  b4.z = -1.0 / PHI
+
+  /* "c" vertices; forms a rectangle on the xz-plane */
+  c1.x = 1.0 / PHI
+  c1.y = 0
+  c1.z = PHI
+  c2.x = 1.0 / PHI
+  c2.y = 0
+  c2.z = -PHI
+  c3.x = -1.0 / PHI
+  c3.y = 0
+  c3.z = PHI
+  c4.x = -1.0 / PHI
+  c4.y = 0
+  c4.z = -PHI
+
+  /* "d" vertices; forms a rectangle on the xy-plane */
+  d1.x = PHI
+  d1.y = 1.0 / PHI
+  d1.z = 0
+  d2.x = PHI
+  d2.y = -1.0 / PHI
+  d2.z = 0
+  d3.x = -PHI
+  d3.y = 1.0 / PHI
+  d3.z = 0
+  d4.x = -PHI
+  d4.y = -1.0 / PHI
+  d4.z = 0
+
+  const dodecahedron = [
+    [b1, a1, d1, a2, b2],
+    [b2, a6, d3, a5, b1],
+    [b3, a7, d4, a8, b4],
+    [b4, a4, d2, a3, b3],
+    [c1, a1, b1, a5, c3],
+    [c2, a4, b4, a8, c4],
+    [c3, a7, b3, a3, c1],
+    [c4, a6, b2, a2, c2],
+    [d1, a1, c1, a3, d2],
+    [d2, a4, c2, a2, d1],
+    [d3, a6, c4, a8, d4],
+    [d4, a7, c3, a5, d3],
+  ]
+
+  /* copy dodecahedron to given array pointer; scale to radius of 1.0 */
+  for (let i = 0; i < 12; i += 1) {
+    for (let j = 0; j < 5; j += 1) {
+      dodecahedron[i][j] = scale(dodecahedron[i][j], 1.0)
+    }
+  }
+
+  return dodecahedron
+}
+
+/* subdiv_triangle: subdivides given triangle into 4 triangles, recursively by
+	numtimes; passes generated triangles to peak_triangle() */
+const subdivTriangle = (t: Vect[], numtimes: number) => {
+  if (numtimes <= 0) {
+    peak_triangle(t)
+    return
+  }
+
+  const m: Vect[] = [
+    scale(midpoint(t[0], t[1]), 1.0),
+    scale(midpoint(t[1], t[2]), 1.0),
+    scale(midpoint(t[2], t[0]), 1.0),
+  ]
+
+  const newtriangles: Vect[][] = [
+    [t[0], m[0], m[2]],
+    [t[1], m[1], m[0]],
+    [t[2], m[2], m[1]],
+    [m[0], m[1], m[2]],
+  ]
+
+  for (let i = 0; i < 4; i += 1) {
+    subdivTriangle(newtriangles[i], numtimes - 1)
+  }
+}
+
+/* subdiv_pentagon: divides given spherical pentagon into spherical
+	triangles; calls subdiv_triangle() */
+const subdivPentagon = (p: Vect[]) => {
+  const n = normal(p)
+
+  const triangles: Vect[][] = [
+    [n, p[0], p[1]],
+    [n, p[1], p[2]],
+    [n, p[2], p[3]],
+    [n, p[3], p[4]],
+    [n, p[4], p[0]],
+  ]
+
+  for (let i = 0; i < 5; i += 1) {
+    subdivTriangle(triangles[i], 3)
+  }
+}
+
+const main = () => {
+  console.log('solid spaceship_earth\n')
+  console.log('\n')
+
+  const dodecahedron = initDodecahedron()
+
+  for (let i = 0; i < 12; i += 1) {
+    subdivPentagon(dodecahedron[i])
+  }
+
+  console.log('endsolid spaceship_earth\n')
+
+  return 0
+}
+
+main()
