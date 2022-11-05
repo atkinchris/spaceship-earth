@@ -118,7 +118,7 @@ const subdivPentagon = (p: Vect[]) => {
   ]
 
   for (let i = 0; i < 5; i += 1) {
-    subdivTriangle(triangles[i], 3)
+    subdivTriangle(triangles[i], 2)
   }
 }
 
