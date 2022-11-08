@@ -5,19 +5,14 @@ import fs from 'fs'
 import generatePyramids from './pyramids'
 
 const main = () => {
-  const triangles = generatePyramids()
-  const dodecahedronPoly = triangles.map(tris => {
-    const points = tris.flatMap(t => t.map(v => [v.x, v.y, v.z] as Vec3))
+  const pyramids = generatePyramids()
+  const points = pyramids.flatMap(t => t.map(v => [v.x, v.y, v.z] as Vec3))
+  const faces = pyramids.map((_, i) => [0 + i * 3, 1 + i * 3, 2 + i * 3])
 
-    return primitives.polyhedron({
-      points,
-      faces: [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-      ],
-      orientation: 'outward',
-    })
+  const dodecahedronPoly = primitives.polyhedron({
+    points,
+    faces,
+    orientation: 'outward',
   })
 
   const rawData: string[] = stlSerializer.serialize({ binary: false }, dodecahedronPoly)

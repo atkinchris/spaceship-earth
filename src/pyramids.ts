@@ -5,9 +5,6 @@ const PEAK = 1.025
 
 type Triangle = [Vect, Vect, Vect]
 type Pentagon = [Vect, Vect, Vect, Vect, Vect]
-type Pyramid = [Triangle, Triangle, Triangle]
-
-const triangles: [Triangle, Triangle, Triangle][] = []
 
 // Generates 12 pentagons to represent the faces of a dodecahedron
 const generatePentagons = (): Pentagon[] => {
@@ -67,21 +64,20 @@ const generatePentagons = (): Pentagon[] => {
 }
 
 // Convert a triangle into pyramid-like peak consisting of 3 triangles
-const peakTriangle = (tri: Vect[]) => {
+const peakTriangle = (tri: Vect[]): Triangle[] => {
   const n = scale(normal(tri), PEAK)
 
-  triangles.push([
+  return [
     [n, tri[0], tri[1]],
     [n, tri[1], tri[2]],
     [n, tri[2], tri[0]],
-  ])
+  ]
 }
 
 // Subdivide a triangle into 4 triangles, recusrively by numTimes
-const subdivTriangle = (t: Triangle, numTimes: number) => {
+const subdivTriangle = (t: Triangle, numTimes: number): Triangle[] => {
   if (numTimes <= 0) {
-    peakTriangle(t)
-    return
+    return peakTriangle(t)
   }
 
   const m: Vect[] = [
@@ -90,28 +86,28 @@ const subdivTriangle = (t: Triangle, numTimes: number) => {
     scale(midpoint(t[2], t[0]), 1.0),
   ]
 
-  subdivTriangle([t[0], m[0], m[2]], numTimes - 1)
-  subdivTriangle([t[1], m[1], m[0]], numTimes - 1)
-  subdivTriangle([t[2], m[2], m[1]], numTimes - 1)
-  subdivTriangle([m[0], m[1], m[2]], numTimes - 1)
+  return [
+    ...subdivTriangle([t[0], m[0], m[2]], numTimes - 1),
+    ...subdivTriangle([t[1], m[1], m[0]], numTimes - 1),
+    ...subdivTriangle([t[2], m[2], m[1]], numTimes - 1),
+    ...subdivTriangle([m[0], m[1], m[2]], numTimes - 1),
+  ]
 }
 
 // Divide a spherical pentagon into spherical triangles
-const subdivPentagon = (p: Pentagon) => {
+const subdivPentagon = (p: Pentagon): Triangle[] => {
   const n = normal(p)
   const subDivisions = 2
 
-  subdivTriangle([n, p[0], p[1]], subDivisions)
-  subdivTriangle([n, p[1], p[2]], subDivisions)
-  subdivTriangle([n, p[2], p[3]], subDivisions)
-  subdivTriangle([n, p[3], p[4]], subDivisions)
-  subdivTriangle([n, p[4], p[0]], subDivisions)
+  return [
+    ...subdivTriangle([n, p[0], p[1]], subDivisions),
+    ...subdivTriangle([n, p[1], p[2]], subDivisions),
+    ...subdivTriangle([n, p[2], p[3]], subDivisions),
+    ...subdivTriangle([n, p[3], p[4]], subDivisions),
+    ...subdivTriangle([n, p[4], p[0]], subDivisions),
+  ]
 }
 
-const generatePyramids = (): Pyramid[] => {
-  triangles.length = 0
-  generatePentagons().forEach(subdivPentagon)
-  return [...triangles]
-}
+const generatePyramids = (): Triangle[] => generatePentagons().flatMap(subdivPentagon)
 
 export default generatePyramids
