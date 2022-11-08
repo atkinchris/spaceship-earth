@@ -1,12 +1,15 @@
+import { primitives } from '@jscad/modeling'
+import { Vec3 } from '@jscad/modeling/src/maths/vec3'
+import stlSerializer from '@jscad/stl-serializer'
 import fs from 'fs'
-import STL from './Stl'
 
 import { midpoint, normal, scale, Vect } from './vect'
 
 const PHI = (1.0 + Math.sqrt(5.0)) / 2.0 /* golden ratio */
 const PEAK = 1.025
 
-const stl = new STL()
+type Triangle = [Vect, Vect, Vect]
+const triangles: [Triangle, Triangle, Triangle][] = []
 
 /* init_dodecahedron: initializes given polygon array with points for a
 	dodecahedron of circumscribed radius 1; assumes given array is of size
@@ -73,9 +76,11 @@ const initDodecahedron = (): Vect[][] => {
 const peakTriangle = (tri: Vect[]) => {
   const n = scale(normal(tri), PEAK)
 
-  stl.addTriangle([n, tri[0], tri[1]])
-  stl.addTriangle([n, tri[1], tri[2]])
-  stl.addTriangle([n, tri[2], tri[0]])
+  triangles.push([
+    [n, tri[0], tri[1]],
+    [n, tri[1], tri[2]],
+    [n, tri[2], tri[0]],
+  ])
 }
 
 /* subdiv_triangle: subdivides given triangle into 4 triangles, recursively by
@@ -92,34 +97,23 @@ const subdivTriangle = (t: Vect[], numtimes: number) => {
     scale(midpoint(t[2], t[0]), 1.0),
   ]
 
-  const newtriangles: Vect[][] = [
-    [t[0], m[0], m[2]],
-    [t[1], m[1], m[0]],
-    [t[2], m[2], m[1]],
-    [m[0], m[1], m[2]],
-  ]
-
-  for (let i = 0; i < 4; i += 1) {
-    subdivTriangle(newtriangles[i], numtimes - 1)
-  }
+  subdivTriangle([t[0], m[0], m[2]], numtimes - 1)
+  subdivTriangle([t[1], m[1], m[0]], numtimes - 1)
+  subdivTriangle([t[2], m[2], m[1]], numtimes - 1)
+  subdivTriangle([m[0], m[1], m[2]], numtimes - 1)
 }
 
 /* subdiv_pentagon: divides given spherical pentagon into spherical
 	triangles; calls subdiv_triangle() */
 const subdivPentagon = (p: Vect[]) => {
   const n = normal(p)
+  const subDivisions = 2
 
-  const triangles: Vect[][] = [
-    [n, p[0], p[1]],
-    [n, p[1], p[2]],
-    [n, p[2], p[3]],
-    [n, p[3], p[4]],
-    [n, p[4], p[0]],
-  ]
-
-  for (let i = 0; i < 5; i += 1) {
-    subdivTriangle(triangles[i], 2)
-  }
+  subdivTriangle([n, p[0], p[1]], subDivisions)
+  subdivTriangle([n, p[1], p[2]], subDivisions)
+  subdivTriangle([n, p[2], p[3]], subDivisions)
+  subdivTriangle([n, p[3], p[4]], subDivisions)
+  subdivTriangle([n, p[4], p[0]], subDivisions)
 }
 
 const main = () => {
@@ -129,7 +123,23 @@ const main = () => {
     subdivPentagon(dodecahedron[i])
   }
 
-  fs.writeFileSync('output.stl', stl.toString())
+  const dodecahedronPoly = triangles.map(tris => {
+    const points = tris.flatMap(t => t.map(v => [v.x, v.y, v.z] as Vec3))
+
+    return primitives.polyhedron({
+      points,
+      faces: [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+      ],
+      orientation: 'outward',
+    })
+  })
+
+  const rawData: string[] = stlSerializer.serialize({ binary: false }, dodecahedronPoly)
+
+  fs.writeFileSync('output.stl', rawData.join('\n'))
 }
 
 main()

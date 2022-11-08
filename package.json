@@ -4,12 +4,13 @@
   "description": "",
   "main": "src/main.ts",
   "scripts": {
-    "start": "ts-node ."
+    "start": "ts-node --files ."
   },
   "author": "Chris Atkin <atkinchris@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "csg.js": "github:archilogic-com/csg.js"
+    "@jscad/modeling": "^2.10.0",
+    "@jscad/stl-serializer": "^2.1.12"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
