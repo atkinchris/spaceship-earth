@@ -25,12 +25,6 @@ const main = () => {
 
   const cylinder = primitives.cylinder({ height: 4, radius: 0.1, segments: 16 })
 
-  // const holeCount = 2
-  // const angleOfSeparation = degToRad(360 / holeCount)
-
-  // const baseHoles = Array.from({ length: holeCount }, (_, i) => transforms.rotateX(angleOfSeparation * i, cylinder))
-  // const holes = Array.from({ length: holeCount }, (_, i) => transforms.rotateY(angleOfSeparation * i, baseHoles))
-
   const holes = [
     transforms.rotateY(0, cylinder),
     transforms.rotateY(degToRad(21), cylinder),
