@@ -95,9 +95,8 @@ const subdivTriangle = (t: Triangle, numTimes: number): Triangle[] => {
 }
 
 // Divide a spherical pentagon into spherical triangles
-const subdivPentagon = (p: Pentagon): Triangle[] => {
+const subdivPentagon = (p: Pentagon, subDivisions: number): Triangle[] => {
   const n = normal(p)
-  const subDivisions = 2
 
   return [
     ...subdivTriangle([n, p[0], p[1]], subDivisions),
@@ -108,6 +107,12 @@ const subdivPentagon = (p: Pentagon): Triangle[] => {
   ]
 }
 
-const generatePyramids = (): Triangle[] => generatePentagons().flatMap(subdivPentagon)
+const generatePyramids = () => {
+  const pentagons: Pentagon[] = generatePentagons()
+  const triangles: Triangle[] = pentagons.flatMap(pentagon => subdivPentagon(pentagon, 2))
+  const holePositions: Triangle[] = pentagons.flatMap(pentagon => subdivPentagon(pentagon, 1))
+
+  return { holePositions, triangles }
+}
 
 export default generatePyramids
