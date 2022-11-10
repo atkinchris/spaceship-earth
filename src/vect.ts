@@ -50,3 +50,11 @@ export const midpoint = (p1: Vect, p2: Vect): Vect => ({
   y: (p1.y + p2.y) / 2.0,
   z: (p1.z + p2.z) / 2.0,
 })
+
+export const subtract = (a: Vect, b: Vect) => ({
+  x: b.x - a.x,
+  y: b.y - a.y,
+  z: b.z - a.z,
+})
+
+export const dot = (a: Vect, b: Vect) => a.x * b.x + a.y * b.y + a.z * b.z
