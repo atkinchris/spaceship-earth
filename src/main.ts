@@ -26,7 +26,7 @@ const main = () => {
   const innerSphere = primitives.sphere({ radius: 0.9, segments: 64 })
 
   const holes = holePositions.map(target => {
-    const hole = primitives.cylinder({ height: 0.1, radius: 0.05, segments: 16, center: [0, 0, 0] })
+    const hole = primitives.cylinder({ height: 0.3, radius: 0.05, segments: 16, center: [0, 0, 0] })
     const holeRotated = transforms.rotateX(Math.PI / 2, hole)
     const holeTranslated = transforms.translateY(1, holeRotated)
     const matrix = fromVectorRotation(maths.mat4.create(), [0, 1, 0], toVec3(target[1]))
