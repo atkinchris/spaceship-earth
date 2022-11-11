@@ -58,7 +58,12 @@ const main = () => {
   const hullWithStands = booleans.union(finalHull, stands)
   const model = booleans.subtract(hullWithStands, innerSphere, groundPlane)
 
-  writeStl(model, 'output.stl')
+  const top = booleans.subtract(model, primitives.cuboid({ size: [10, 10, 10], center: [0, 5, 0] }))
+  const bottom = booleans.subtract(model, primitives.cuboid({ size: [10, 10, 10], center: [0, -5, 0] }))
+
+  writeStl(model, 'spaceship-earth.stl')
+  writeStl(top, 'spaceship-earth_top.stl')
+  writeStl(bottom, 'spaceship-earth_bottom.stl')
 }
 
 main()
