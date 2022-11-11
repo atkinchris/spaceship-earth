@@ -15,6 +15,8 @@ const writeStl = (model: Geom3 | Geom3[], fileName: string) => {
 
 const toVec3 = (v: Vect): Vec3 => [v.x, v.y, v.z]
 
+const toRad = (degrees: number) => degrees * (Math.PI / 180)
+
 const main = () => {
   const { holePositions, triangles } = generatePyramids()
   const points = triangles.flatMap(t => t.map(toVec3))
@@ -33,7 +35,28 @@ const main = () => {
     return rotated
   })
 
-  const model = booleans.subtract(hull, innerSphere, holes)
+  const leg = primitives.cuboid({ size: [0.2, 1, 0.75], center: [0, 0, 0] })
+  const legHole = primitives.cuboid({ size: [1, 0.5, 0.4], center: [0, 0, 0] })
+  const legSubtracted = booleans.subtract(leg, legHole)
+  const legRotated = transforms.rotateZ(toRad(30), legSubtracted)
+  const legTranslated = transforms.translate([0.65, -0.75, 0], legRotated)
+
+  const column = primitives.cylinder({ height: 1, radius: 0.3, center: [0, 0, 0] })
+  const columnRotated = transforms.rotateX(toRad(90), column)
+  const columnTranslated = transforms.translate([0, -1, 0], columnRotated)
+
+  const stands = [
+    transforms.rotateY(toRad(0), legTranslated),
+    transforms.rotateY(toRad(120), legTranslated),
+    transforms.rotateY(toRad(240), legTranslated),
+    columnTranslated,
+  ]
+
+  const groundPlane = primitives.cuboid({ size: [10, 10, 10], center: [0, -6.1, 0] })
+
+  const finalHull = booleans.subtract(hull, innerSphere, holes)
+  const hullWithStands = booleans.union(finalHull, stands)
+  const model = booleans.subtract(hullWithStands, innerSphere, groundPlane)
 
   writeStl(model, 'output.stl')
 }
