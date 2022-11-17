@@ -31,9 +31,9 @@ const main = () => {
   const hullScaled = transforms.scale([scale, scale, scale], hull)
 
   const holes = holePositions.map(target => {
-    const hole = primitives.cylinder({ height: 0.3, radius: 0.05, segments: 16, center: [0, 0, 0] })
+    const hole = primitives.cylinder({ height: 30, radius: 4, segments: 16, center: [0, 0, 0] })
     const holeRotated = transforms.rotateX(Math.PI / 2, hole)
-    const holeTranslated = transforms.translateY(1, holeRotated)
+    const holeTranslated = transforms.translateY(100, holeRotated)
     const matrix = fromVectorRotation(maths.mat4.create(), [0, 1, 0], toVec3(target[1]))
     const rotated = transforms.transform(matrix, holeTranslated)
 
