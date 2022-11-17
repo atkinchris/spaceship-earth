@@ -1,4 +1,4 @@
-import { primitives, booleans, transforms, maths } from '@jscad/modeling'
+import { primitives, booleans, transforms, maths, measurements } from '@jscad/modeling'
 import { Geom3 } from '@jscad/modeling/src/geometries/types'
 import { Vec3 } from '@jscad/modeling/src/maths/vec3'
 import fromVectorRotation from '@jscad/modeling/src/maths/mat4/fromVectorRotation'
@@ -23,7 +23,12 @@ const main = () => {
   const faces = triangles.map((_, i) => [0 + i * 3, 1 + i * 3, 2 + i * 3])
 
   const hull = primitives.polyhedron({ points, faces })
-  const innerSphere = primitives.sphere({ radius: 0.9, segments: 64 })
+  const innerSphere = primitives.sphere({ radius: 90, segments: 64 })
+
+  const dimensions = measurements.measureDimensions(hull)
+  const hullWidth = typeof dimensions[0] === 'number' ? dimensions[0] : dimensions[0][0]
+  const scale = 200 / hullWidth
+  const hullScaled = transforms.scale([scale, scale, scale], hull)
 
   const holes = holePositions.map(target => {
     const hole = primitives.cylinder({ height: 0.3, radius: 0.05, segments: 16, center: [0, 0, 0] })
@@ -35,15 +40,15 @@ const main = () => {
     return rotated
   })
 
-  const leg = primitives.cuboid({ size: [0.2, 1, 0.75], center: [0, 0, 0] })
-  const legHole = primitives.cuboid({ size: [1, 0.5, 0.4], center: [0, 0, 0] })
+  const leg = primitives.cuboid({ size: [20, 100, 75], center: [0, 0, 0] })
+  const legHole = primitives.cuboid({ size: [100, 50, 40], center: [0, 0, 0] })
   const legSubtracted = booleans.subtract(leg, legHole)
   const legRotated = transforms.rotateZ(toRad(30), legSubtracted)
-  const legTranslated = transforms.translate([0.65, -0.75, 0], legRotated)
+  const legTranslated = transforms.translate([65, -75, 0], legRotated)
 
-  const column = primitives.cylinder({ height: 1, radius: 0.3, center: [0, 0, 0] })
+  const column = primitives.cylinder({ height: 100, radius: 30, center: [0, 0, 0] })
   const columnRotated = transforms.rotateX(toRad(90), column)
-  const columnTranslated = transforms.translate([0, -1, 0], columnRotated)
+  const columnTranslated = transforms.translate([0, -100, 0], columnRotated)
 
   const stands = [
     transforms.rotateY(toRad(0), legTranslated),
@@ -52,14 +57,14 @@ const main = () => {
     columnTranslated,
   ]
 
-  const groundPlane = primitives.cuboid({ size: [10, 10, 10], center: [0, -6.1, 0] })
+  const groundPlane = primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -610, 0] })
 
-  const finalHull = booleans.subtract(hull, innerSphere, holes)
+  const finalHull = booleans.subtract(hullScaled, innerSphere, holes)
   const hullWithStands = booleans.union(finalHull, stands)
   const model = booleans.subtract(hullWithStands, innerSphere, groundPlane)
 
-  const top = booleans.subtract(model, primitives.cuboid({ size: [10, 10, 10], center: [0, -5, 0] }))
-  const bottom = booleans.subtract(model, primitives.cuboid({ size: [10, 10, 10], center: [0, 5, 0] }))
+  const top = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -500, 0] }))
+  const bottom = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, 500, 0] }))
 
   writeStl(model, 'spaceship-earth.stl')
   writeStl(top, 'spaceship-earth_top.stl')
