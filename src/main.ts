@@ -36,10 +36,16 @@ const main = () => {
   const holeRotated = transforms.rotateX(Math.PI / 2, hole)
   const holeTranslated = transforms.translateY(95, holeRotated)
 
-  const holes = holePositions.map(target => {
-    const matrix = fromVectorRotation(maths.mat4.create(), [0, 1, 0], toVec3(target[1]))
-    return transforms.transform(matrix, holeTranslated)
-  })
+  const holes = holePositions
+    .map(target => target[1])
+    .filter(
+      (targetV, index, array) =>
+        array.findIndex(v => v.x === targetV.x && v.y === targetV.y && v.z === targetV.z) === index
+    )
+    .map(targetV => {
+      const matrix = fromVectorRotation(maths.mat4.create(), [0, 1, 0], toVec3(targetV))
+      return transforms.transform(matrix, holeTranslated)
+    })
 
   const leg = primitives.cuboid({ size: [20, 100, 75], center: [0, 0, 0] })
   const legHole = primitives.cuboid({ size: [100, 50, 40], center: [0, 0, 0] })
