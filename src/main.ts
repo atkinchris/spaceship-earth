@@ -9,7 +9,7 @@ import generatePyramids from './pyramids'
 import { Vect } from './vect'
 
 const writeStl = (model: Geom3 | Geom3[], fileName: string) => {
-  const rawData: string[] = stlSerializer.serialize({ binary: false }, model)
+  const rawData = stlSerializer.serialize({ binary: false }, model)
   fs.writeFileSync(fileName, rawData.join('\n'))
 }
 
