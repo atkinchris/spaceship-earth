@@ -25,8 +25,7 @@ const main = () => {
   const hull = primitives.polyhedron({ points, faces })
   const innerSphere = primitives.sphere({ radius: 90, segments: 64 })
 
-  const dimensions = measurements.measureDimensions(hull)
-  const hullWidth = typeof dimensions[0] === 'number' ? dimensions[0] : dimensions[0][0]
+  const [hullWidth] = measurements.measureDimensions(hull)
   const scale = 200 / hullWidth
   const hullScaled = transforms.scale([scale, scale, scale], hull)
 
