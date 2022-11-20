@@ -30,19 +30,19 @@ const main = () => {
   console.log(`Generating with ${safeHolePositions.length} holes`)
 
   const hull = primitives.polyhedron({ points, faces })
-  const innerSphere = primitives.sphere({ radius: 70, segments: 64 })
+  const innerSphere = primitives.sphere({ radius: 95, segments: 64 })
 
   const [hullWidth] = measurements.measureDimensions(hull)
-  const scale = 150 / hullWidth
+  const scale = 200 / hullWidth
   const hullScaled = transforms.scale([scale, scale, scale], hull)
 
   const hole = primitives.cylinder({ height: 60, radius: 1.5, segments: 16, center: [0, 0, 0] })
   const holeRotated = transforms.rotateX(Math.PI / 2, hole)
-  const holeTranslated = transforms.translateY(75, holeRotated)
+  const holeTranslated = transforms.translateY(95, holeRotated)
 
   const support = primitives.cylinder({ height: 10, radius: 4, segments: 16, center: [0, 0, 0] })
   const supportRotated = transforms.rotateX(Math.PI / 2, support)
-  const supportTranslated = transforms.translateY(68, supportRotated)
+  const supportTranslated = transforms.translateY(90, supportRotated)
 
   const holeSupports = safeHolePositions.map(v => {
     const matrix = fromVectorRotation(maths.mat4.create(), [0, 1, 0], toVec3(v))
@@ -54,13 +54,13 @@ const main = () => {
     return transforms.transform(matrix, holeTranslated)
   })
 
-  const leg = primitives.cuboid({ size: [15, 100, 50], center: [0, 0, 0] })
-  const legHole = primitives.cuboid({ size: [100, 100, 20], center: [0, 50, 0] })
+  const leg = primitives.cuboid({ size: [15, 100, 60], center: [0, 0, 0] })
+  const legHole = primitives.cuboid({ size: [100, 100, 30], center: [0, 20, 0] })
   const legSubtracted = booleans.subtract(leg, legHole)
   const legRotated = transforms.rotateZ(toRad(30), legSubtracted)
-  const legTranslated = transforms.translate([55, -75, 0], legRotated)
+  const legTranslated = transforms.translate([60, -75, 0], legRotated)
 
-  const column = primitives.cylinder({ height: 100, radius: 20, center: [0, 0, 0] })
+  const column = primitives.cylinder({ height: 100, radius: 30, center: [0, 0, 0] })
   const columnRotated = transforms.rotateX(toRad(90), column)
   const columnTranslated = transforms.translate([0, -100, 0], columnRotated)
 
@@ -70,14 +70,14 @@ const main = () => {
     transforms.rotateY(toRad(240), legTranslated),
     columnTranslated,
   ])
-  const groundPlane = primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -500 - 80, 0] })
+  const groundPlane = primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -500 - 110, 0] })
   const standsTrimmed = booleans.subtract(stands, innerSphere, groundPlane)
 
   const hollowHull = booleans.subtract(hullScaled, innerSphere)
   const hullWithSupports = booleans.union(hollowHull, holeSupports)
   const hullWithHoles = booleans.subtract(hullWithSupports, holes)
 
-  const accessHatch = primitives.cuboid({ size: [50, 200, 1000], center: [70, 70, 0] })
+  const accessHatch = primitives.cuboid({ size: [50, 200, 1000], center: [90, 70, 0] })
 
   const model = booleans.union(hullWithHoles, standsTrimmed)
 
