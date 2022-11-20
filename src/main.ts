@@ -22,7 +22,7 @@ const main = () => {
   const points = triangles.flatMap(t => t.map(toVec3))
   const faces = triangles.map((_, i) => [0 + i * 3, 1 + i * 3, 2 + i * 3])
 
-  const safeHolePositions = holePositions.filter(v => v.y > -0.7 || v.y > 1)
+  const safeHolePositions = holePositions.filter(v => v.y > -0.7 || v.y > 1).filter((_, index) => index % 4 === 0)
 
   console.log(`Generating with ${safeHolePositions.length} holes`)
 
@@ -37,7 +37,7 @@ const main = () => {
   const holeRotated = transforms.rotateX(Math.PI / 2, hole)
   const holeTranslated = transforms.translateY(95, holeRotated)
 
-  const support = primitives.cylinder({ height: 20, radius: 4, segments: 16, center: [0, 0, 0] })
+  const support = primitives.cylinder({ height: 16, radius: 4, segments: 16, center: [0, 0, 0] })
   const supportRotated = transforms.rotateX(Math.PI / 2, support)
   const supportTranslated = transforms.translateY(90, supportRotated)
 
