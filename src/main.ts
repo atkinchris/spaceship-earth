@@ -22,7 +22,10 @@ const main = () => {
   const points = triangles.flatMap(t => t.map(toVec3))
   const faces = triangles.map((_, i) => [0 + i * 3, 1 + i * 3, 2 + i * 3])
 
-  const safeHolePositions = holePositions.filter(v => v.y > -0.7 || v.y > 1)
+  const safeHolePositions = holePositions
+    .filter(v => v.x >= -1 && v.x < 0.5)
+    .filter(v => v.y > -0.7 && v.y <= 1)
+    .filter(v => v.z >= -1 && v.z <= 1)
 
   console.log(`Generating with ${safeHolePositions.length} holes`)
 
@@ -74,10 +77,12 @@ const main = () => {
   const hullWithSupports = booleans.union(hollowHull, holeSupports)
   const hullWithHoles = booleans.subtract(hullWithSupports, holes)
 
-  const model = booleans.union(hullWithHoles, standsTrimmed)
+  const accessHatch = primitives.sphere({ radius: 50, center: [60, 0, 0] })
 
-  const modelA = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -500, 0] }))
-  const modelB = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, 500, 0] }))
+  const model = booleans.union(hullWithHoles, standsTrimmed, accessHatch)
+
+  const modelA = booleans.subtract(model, accessHatch)
+  const modelB = booleans.intersect(model, accessHatch)
 
   writeStl(model, 'spaceship-earth.stl')
   writeStl(modelA, 'spaceship-earth_a.stl')
