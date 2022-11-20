@@ -110,7 +110,13 @@ const subdivPentagon = (p: Pentagon, subDivisions: number): Triangle[] => {
 const generatePyramids = () => {
   const pentagons: Pentagon[] = generatePentagons()
   const triangles: Triangle[] = pentagons.flatMap(pentagon => subdivPentagon(pentagon, 2))
-  const holePositions: Triangle[] = pentagons.flatMap(pentagon => subdivPentagon(pentagon, 1))
+  const holePositions: Vect[] = pentagons
+    .flatMap(pentagon => subdivPentagon(pentagon, 1))
+    .map(target => target[1])
+    .filter(
+      (targetV, index, array) =>
+        array.findIndex(v => v.x === targetV.x && v.y === targetV.y && v.z === targetV.z) === index
+    )
 
   return { holePositions, triangles }
 }
