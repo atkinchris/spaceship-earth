@@ -77,12 +77,12 @@ const main = () => {
   const hullWithSupports = booleans.union(hollowHull, holeSupports)
   const hullWithHoles = booleans.subtract(hullWithSupports, holes)
 
-  const accessHatch = primitives.sphere({ radius: 50, center: [60, 0, 0] })
+  const accessHatch = primitives.cuboid({ size: [50, 200, 1000], center: [70, 70, 0] })
 
-  const model = booleans.union(hullWithHoles, standsTrimmed, accessHatch)
+  const model = booleans.union(hullWithHoles, standsTrimmed)
 
   const modelA = booleans.subtract(model, accessHatch)
-  const modelB = booleans.intersect(model, accessHatch)
+  const modelB = booleans.subtract(model, modelA)
 
   writeStl(model, 'spaceship-earth.stl')
   writeStl(modelA, 'spaceship-earth_a.stl')
