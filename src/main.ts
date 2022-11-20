@@ -76,12 +76,12 @@ const main = () => {
 
   const model = booleans.union(hullWithHoles, standsTrimmed)
 
-  const top = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -500, 0] }))
-  const bottom = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, 500, 0] }))
+  const modelA = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -500, 0] }))
+  const modelB = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, 500, 0] }))
 
   writeStl(model, 'spaceship-earth.stl')
-  writeStl(top, 'spaceship-earth_top.stl')
-  writeStl(bottom, 'spaceship-earth_bottom.stl')
+  writeStl(modelA, 'spaceship-earth_a.stl')
+  writeStl(modelB, 'spaceship-earth_b.stl')
 }
 
 main()
