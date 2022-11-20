@@ -22,6 +22,10 @@ const main = () => {
   const points = triangles.flatMap(t => t.map(toVec3))
   const faces = triangles.map((_, i) => [0 + i * 3, 1 + i * 3, 2 + i * 3])
 
+  const safeHolePositions = holePositions.filter(v => v.y > -0.7 || v.y > 1)
+
+  console.log(`Generating with ${safeHolePositions.length} holes`)
+
   const hull = primitives.polyhedron({ points, faces })
   const innerSphere = primitives.sphere({ radius: 90, segments: 64 })
 
@@ -29,14 +33,21 @@ const main = () => {
   const scale = 200 / hullWidth
   const hullScaled = transforms.scale([scale, scale, scale], hull)
 
-  const holeOuter = primitives.cylinder({ height: 40, radius: 2, segments: 16, center: [0, 0, -20] })
-  const holeInner = primitives.cylinder({ height: 40, radius: 4, segments: 16, center: [0, 0, 20] })
-  const hole = booleans.union(holeOuter, holeInner)
+  const hole = primitives.cylinder({ height: 60, radius: 1.5, segments: 16, center: [0, 0, 0] })
   const holeRotated = transforms.rotateX(Math.PI / 2, hole)
   const holeTranslated = transforms.translateY(95, holeRotated)
 
-  const holes = holePositions.map(targetV => {
-    const matrix = fromVectorRotation(maths.mat4.create(), [0, 1, 0], toVec3(targetV))
+  const support = primitives.cylinder({ height: 20, radius: 4, segments: 16, center: [0, 0, 0] })
+  const supportRotated = transforms.rotateX(Math.PI / 2, support)
+  const supportTranslated = transforms.translateY(90, supportRotated)
+
+  const holeSupports = safeHolePositions.map(v => {
+    const matrix = fromVectorRotation(maths.mat4.create(), [0, 1, 0], toVec3(v))
+    return transforms.transform(matrix, supportTranslated)
+  })
+
+  const holes = safeHolePositions.map(v => {
+    const matrix = fromVectorRotation(maths.mat4.create(), [0, 1, 0], toVec3(v))
     return transforms.transform(matrix, holeTranslated)
   })
 
@@ -59,8 +70,11 @@ const main = () => {
   const groundPlane = primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -610, 0] })
   const standsTrimmed = booleans.subtract(stands, innerSphere, groundPlane)
 
-  const finalHull = booleans.subtract(hullScaled, innerSphere, holes)
-  const model = booleans.union(finalHull, standsTrimmed)
+  const hollowHull = booleans.subtract(hullScaled, innerSphere)
+  const hullWithSupports = booleans.union(hollowHull, holeSupports)
+  const hullWithHoles = booleans.subtract(hullWithSupports, holes)
+
+  const model = booleans.union(hullWithHoles, standsTrimmed)
 
   const top = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -500, 0] }))
   const bottom = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, 500, 0] }))
