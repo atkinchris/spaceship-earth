@@ -50,18 +50,17 @@ const main = () => {
   const columnRotated = transforms.rotateX(toRad(90), column)
   const columnTranslated = transforms.translate([0, -100, 0], columnRotated)
 
-  const stands = [
+  const stands = booleans.union([
     transforms.rotateY(toRad(0), legTranslated),
     transforms.rotateY(toRad(120), legTranslated),
     transforms.rotateY(toRad(240), legTranslated),
     columnTranslated,
-  ]
-
+  ])
   const groundPlane = primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -610, 0] })
+  const standsTrimmed = booleans.subtract(stands, innerSphere, groundPlane)
 
   const finalHull = booleans.subtract(hullScaled, innerSphere, holes)
-  const hullWithStands = booleans.union(finalHull, stands)
-  const model = booleans.subtract(hullWithStands, innerSphere, groundPlane)
+  const model = booleans.union(finalHull, standsTrimmed)
 
   const top = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, -500, 0] }))
   const bottom = booleans.subtract(model, primitives.cuboid({ size: [1000, 1000, 1000], center: [0, 500, 0] }))
