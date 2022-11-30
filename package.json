@@ -9,8 +9,8 @@
   "author": "Chris Atkin <atkinchris@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@jscad/modeling": "^2.10.0",
-    "@jscad/stl-serializer": "^2.1.12"
+    "@jscad/modeling": "^2.11.0",
+    "@jscad/stl-serializer": "^2.1.13"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
